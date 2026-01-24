@@ -112,7 +112,7 @@ fun PrintScreen(modifier: Modifier = Modifier) {
     val stepMm = 0.5
 
     var copies by rememberSaveable { mutableStateOf("1") }
-    var activePrintJob by rememberSaveable { mutableStateOf<PrintJob?>(null) }
+    var activePrintJob by remember { mutableStateOf<PrintJob?>(null) }
 
     var selectedPdfUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var wizardStep by rememberSaveable { mutableStateOf(0) } // 0=Select PDF, 1=Nudge & Print, 2=Stickers
