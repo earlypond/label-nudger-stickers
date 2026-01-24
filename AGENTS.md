@@ -25,6 +25,7 @@ LabelNudger is an Android utility app for printing label sheets with precise pos
 - `androidx.compose.material3:material3` - Material Design 3 components
 - `androidx.compose.material:material-icons-extended` - Extended icon set
 - `androidx.lifecycle:lifecycle-runtime-ktx` - Lifecycle awareness
+- `com.tom-roush:pdfbox-android` - Vector PDF manipulation (no rasterization)
 
 ## Project Structure
 
@@ -90,12 +91,14 @@ The app applies positional offsets to printed labels:
 - Applied via Canvas matrix transformation during PDF rendering
 - Positive X shifts right, positive Y shifts down
 
-### PDF Rendering Pipeline
-1. Open PDF using `PdfRenderer`
-2. Render each page to high-resolution Bitmap (300 DPI)
-3. Create new PDF document with `PdfDocument`
-4. Draw bitmap with shift offset applied via `Canvas.translate()`
-5. Write to output for printing
+### PDF Transformation Pipeline (Vector-based, no rasterization)
+1. Load source PDF using PdfBox (`PDDocument.load()`)
+2. Import each page into output document (`outputDoc.importPage()`)
+3. Prepend translation matrix to page content stream (`PDPageContentStream` with `AppendMode.PREPEND`)
+4. Apply shift via `Matrix.getTranslateInstance(shiftX, -shiftY)` (Y negated for PDF coordinate system)
+5. Save output PDF directly to print system
+
+This approach preserves vector quality and uses minimal memory compared to rasterization.
 
 ### Stickers System
 - Remote index at: `https://blueislandpress.github.io/label-nudger-stickers/index.json`

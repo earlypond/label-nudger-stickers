@@ -1,12 +1,8 @@
 
 package com.example.labelnudger
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
@@ -18,6 +14,11 @@ import android.print.PrintDocumentInfo
 import android.print.PrintJob
 import android.print.PrintManager
 import android.widget.Toast
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.pdmodel.PDPage
+import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.util.Matrix
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -84,6 +85,8 @@ private data class StickerItem(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize PDFBox for Android
+        PDFBoxResourceLoader.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             LabelNudgerTheme {
@@ -473,8 +476,6 @@ private class ShiftedPdfPrintAdapter(
     private val copies: Int
 ) : PrintDocumentAdapter() {
 
-    private var pdfRenderer: PdfRenderer? = null
-    private var pfd: ParcelFileDescriptor? = null
     private var sourcePageCount: Int = 0
     private var totalOutputPages: Int = 0
 
@@ -491,25 +492,24 @@ private class ShiftedPdfPrintAdapter(
         }
 
         try {
-            // Open the PDF so we can report page count.
-            pfd?.close()
-            pdfRenderer?.close()
-
-            pfd = when (pdfUri.scheme) {
-                "content" -> context.contentResolver.openFileDescriptor(pdfUri, "r")
-                "file" -> {
-                    val f = File(requireNotNull(pdfUri.path) { "Invalid file uri" })
-                    ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY)
-                }
-                else -> context.contentResolver.openFileDescriptor(pdfUri, "r")
+            // Open PDF with PdfBox to count pages
+            val inputStream = when (pdfUri.scheme) {
+                "content" -> context.contentResolver.openInputStream(pdfUri)
+                "file" -> File(requireNotNull(pdfUri.path) { "Invalid file uri" }).inputStream()
+                else -> context.contentResolver.openInputStream(pdfUri)
             }
-            if (pfd == null) {
+
+            if (inputStream == null) {
                 callback.onLayoutFailed("Couldn't open PDF")
                 return
             }
 
-            pdfRenderer = PdfRenderer(pfd!!)
-            sourcePageCount = pdfRenderer?.pageCount ?: 0
+            inputStream.use { stream ->
+                PDDocument.load(stream).use { doc ->
+                    sourcePageCount = doc.numberOfPages
+                }
+            }
+
             totalOutputPages = sourcePageCount * max(1, copies)
 
             val info = PrintDocumentInfo.Builder("label_nudger_output.pdf")
@@ -529,89 +529,70 @@ private class ShiftedPdfPrintAdapter(
         cancellationSignal: CancellationSignal,
         callback: WriteResultCallback
     ) {
-        val renderer = pdfRenderer
-        if (renderer == null) {
-            callback.onWriteFailed("PDF not ready")
-            return
-        }
-
-        // We write a new PDF that the Android print system will send to the printer.
-        val pdfDocument = android.graphics.pdf.PdfDocument()
-
         try {
-            val pagesToWrite = mutableListOf<Int>()
-            for (i in 0 until totalOutputPages) {
-                if (PageRangeUtils.contains(pageRanges, i)) pagesToWrite.add(i)
+            // Open source PDF
+            val inputStream = when (pdfUri.scheme) {
+                "content" -> context.contentResolver.openInputStream(pdfUri)
+                "file" -> File(requireNotNull(pdfUri.path) { "Invalid file uri" }).inputStream()
+                else -> context.contentResolver.openInputStream(pdfUri)
             }
 
-            for (outPageIndex in pagesToWrite) {
-                if (cancellationSignal.isCanceled) {
-                    pdfDocument.close()
-                    callback.onWriteCancelled()
-                    return
+            if (inputStream == null) {
+                callback.onWriteFailed("Couldn't open PDF")
+                return
+            }
+
+            inputStream.use { stream ->
+                PDDocument.load(stream).use { sourceDoc ->
+                    // Create output document
+                    PDDocument().use { outputDoc ->
+                        val pagesToWrite = mutableListOf<Int>()
+                        for (i in 0 until totalOutputPages) {
+                            if (PageRangeUtils.contains(pageRanges, i)) pagesToWrite.add(i)
+                        }
+
+                        for (outPageIndex in pagesToWrite) {
+                            if (cancellationSignal.isCanceled) {
+                                callback.onWriteCancelled()
+                                return
+                            }
+
+                            val srcPageIndex = if (sourcePageCount == 0) 0 else (outPageIndex % sourcePageCount)
+                            val sourcePage = sourceDoc.getPage(srcPageIndex)
+
+                            // Import the page into output document
+                            val importedPage = outputDoc.importPage(sourcePage)
+
+                            // Apply translation transform to the page content
+                            // We prepend a transform matrix that shifts all content
+                            PDPageContentStream(
+                                outputDoc,
+                                importedPage,
+                                PDPageContentStream.AppendMode.PREPEND,
+                                false
+                            ).use { cs ->
+                                // Create translation matrix: shifts content by (shiftX, shiftY) points
+                                // Note: PDF Y-axis is inverted (0 at bottom), so we negate Y shift
+                                cs.transform(Matrix.getTranslateInstance(shiftXPoints, -shiftYPoints))
+                            }
+                        }
+
+                        // Write output PDF to destination
+                        FileOutputStream(destination.fileDescriptor).use { outStream ->
+                            outputDoc.save(outStream)
+                        }
+                    }
                 }
-
-                val srcPageIndex = if (sourcePageCount == 0) 0 else (outPageIndex % sourcePageCount)
-
-                val srcPage = renderer.openPage(srcPageIndex)
-                val pageWidth = srcPage.width
-                val pageHeight = srcPage.height
-
-                val pageInfo = android.graphics.pdf.PdfDocument.PageInfo
-                    .Builder(pageWidth, pageHeight, outPageIndex + 1)
-                    .create()
-
-                val outPage = pdfDocument.startPage(pageInfo)
-
-                // Render at 600 DPI for crisp printing.
-                // Pdf points are based on 72 dpi, so scale up by (600/72).
-                val targetDpi = 300f
-                val scale = targetDpi / 72f
-
-                val bmpW = (pageWidth * scale).toInt().coerceAtLeast(1)
-                val bmpH = (pageHeight * scale).toInt().coerceAtLeast(1)
-
-                val bitmap = Bitmap.createBitmap(bmpW, bmpH, Bitmap.Config.ARGB_8888)
-                bitmap.eraseColor(android.graphics.Color.WHITE)
-
-                // Render the PDF page into the high-res bitmap.
-                val renderMatrix = Matrix().apply { setScale(scale, scale) }
-                srcPage.render(bitmap, null, renderMatrix, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
-
-                // Draw the high-res bitmap back onto the output PDF page.
-                // We scale it down to the original PDF page size, and then apply the nudge shift in points.
-                val drawMatrix = Matrix().apply {
-                    setScale(1f / scale, 1f / scale)
-                    postTranslate(shiftXPoints, shiftYPoints)
-                }
-                outPage.canvas.drawBitmap(bitmap, drawMatrix, null)
-
-                pdfDocument.finishPage(outPage)
-
-                bitmap.recycle()
-                srcPage.close()
             }
 
-            FileOutputStream(destination.fileDescriptor).use { outStream ->
-                pdfDocument.writeTo(outStream)
-            }
-
-            pdfDocument.close()
             callback.onWriteFinished(pageRanges)
         } catch (e: Exception) {
-            try {
-                pdfDocument.close()
-            } catch (_: Exception) {
-            }
-            callback.onWriteFailed(e.message)
+            callback.onWriteFailed(e.message ?: "Failed to process PDF")
         }
     }
 
     override fun onFinish() {
-        try { pdfRenderer?.close() } catch (_: Exception) {}
-        try { pfd?.close() } catch (_: Exception) {}
-        pdfRenderer = null
-        pfd = null
+        // No resources to clean up - PdfBox documents are closed via use{}
     }
 }
 
