@@ -1,28 +1,10 @@
 [
-  {
-    "name": "Angela Newberry",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Angela%20Newberry%20STICKER.pdf"
-  },
-  {
-    "name": "Anna Lohe",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Anna%20Lohe%20STICKER.pdf"
-  },
-  {
-    "name": "Annie Franklin",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Annie%20Franklin%20STICKER.pdf"
-  },
-  {
-    "name": "Anthea Stead",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Anthea%20Stead%20STICKER.pdf"
-  },
-  {
-    "name": "Australian Artist",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Australian%20Artist%20STICKER.pdf"
-  },
-  {
-    "name": "Australian Impressionism",
-    "url": "https://earlypond.github.io/label-nudger-stickers/Australian%20Impressionism%20STICKER.pdf"
-  },
+  { "name": "Angela Newberry", "url": "https://earlypond.github.io/label-nudger-stickers/Angela%20Newberry%20STICKER.pdf"},
+  { "name": "Anna Lohe", "url": "https://earlypond.github.io/label-nudger-stickers/Anna%20Lohe%20STICKER.pdf"},
+  { "name": "Annie Franklin", "url": "https://earlypond.github.io/label-nudger-stickers/Annie%20Franklin%20STICKER.pdf"},
+  { "name": "Anthea Stead", "url": "https://earlypond.github.io/label-nudger-stickers/Anthea%20Stead%20STICKER.pdf"},
+  { "name": "Australian Artist", "url": "https://earlypond.github.io/label-nudger-stickers/Australian%20Artist%20STICKER.pdf"},
+  { "name": "Australian Impressionism", "url": "https://earlypond.github.io/label-nudger-stickers/Australian%20Impressionism%20STICKER.pdf"},
   { "name": "Shanti Sparrow", "url": "https://earlypond.github.io/label-nudger-stickers/SHANTI%20SPARROW%2065%20UPindd.pdf" },
   { "name": "Samantha Boarder", "url": "https://earlypond.github.io/label-nudger-stickers/Samantha%20Boarder%20STICKER.pdf" },
   { "name": "Sandi Rigby", "url": "https://earlypond.github.io/label-nudger-stickers/Sandi%20Rigby%20STICKER.pdf" },
@@ -31,15 +13,14 @@
   { "name": "Vlad Stankovic", "url": "https://earlypond.github.io/label-nudger-stickers/Vlad%20Stankovic.pdf" },
   { "name": "William Bosservain", "url": "https://earlypond.github.io/label-nudger-stickers/WILLIAM%20BOSSERVAIN.pdf" },
   { "name": "Wolf Erlbruch", "url": "https://earlypond.github.io/label-nudger-stickers/WOLF%20ERLBRUCH%2065%20UPindd.pdf" },
-
   { "name": "Laura Alice", "url": "https://earlypond.github.io/label-nudger-stickers/LAURA%20ALICE.pdf" },
   { "name": "Laila Page", "url": "https://earlypond.github.io/label-nudger-stickers/Laila%20Page.pdf" },
-  { "name": "Lisa Michl Ko-magen", "url": "https://earlypond.github.io/label-nudger-stickers/Lisa%20Michl%20Ko-magen.pdf" },
+  { "name": "Lisa Michl", "url": "https://earlypond.github.io/label-nudger-stickers/Lisa%20Michl%20Ko-magen.pdf" },
   { "name": "Lisanne and Lianne", "url": "https://earlypond.github.io/label-nudger-stickers/Lisanne%20and%20Lianne%28New%202023%29.pdf" },
   { "name": "Luka Va", "url": "https://earlypond.github.io/label-nudger-stickers/Luka%20Va.pdf" },
   { "name": "Margaret Coen", "url": "https://earlypond.github.io/label-nudger-stickers/MARGARET%20COEN%2065%20UPindd.pdf" },
   { "name": "Margaret Preston", "url": "https://earlypond.github.io/label-nudger-stickers/MARGARET%20PRESTON%20NEW.pdf" },
-  { "name": "Mary Ann Hudson", "url": "https://earlypond.github.io/label-nudger-stickers/MARY%20ANN%20HUDSON%20STICKER%20NEW.pdf" },
+  { "name": "MA Hudson", "url": "https://earlypond.github.io/label-nudger-stickers/MARY%20ANN%20HUDSON%20STICKER%20NEW.pdf" },
   { "name": "Margaret Coen", "url": "https://earlypond.github.io/label-nudger-stickers/Margaret%20Coen%28New%202023%29.pdf" },
   { "name": "Margaret Dubowski", "url": "https://earlypond.github.io/label-nudger-stickers/Margaret%20Dubowski.pdf" },
   { "name": "Margaret Olley", "url": "https://earlypond.github.io/label-nudger-stickers/Margaret%20Olley.pdf" },
@@ -59,7 +40,6 @@
   { "name": "Rachael King", "url": "https://earlypond.github.io/label-nudger-stickers/Rachael%20King.pdf" },
   { "name": "Rachel Newling", "url": "https://earlypond.github.io/label-nudger-stickers/Rachel%20Newling%20Sticker.pdf" },
   { "name": "Ruth Searle", "url": "https://earlypond.github.io/label-nudger-stickers/Ruth%20Searle.pdf" },
-
   { "name": "Gabby Malpas", "url": "https://earlypond.github.io/label-nudger-stickers/GABBY%20MALPAS.pdf" },
   { "name": "Gauguin", "url": "https://earlypond.github.io/label-nudger-stickers/Gauguin.pdf" },
   { "name": "Glo Hill", "url": "https://earlypond.github.io/label-nudger-stickers/Glo%20Hill.pdf" },
@@ -83,7 +63,6 @@
   { "name": "Kate Hudson", "url": "https://earlypond.github.io/label-nudger-stickers/Kate%20Hudson.pdf" },
   { "name": "Kit Hiller", "url": "https://earlypond.github.io/label-nudger-stickers/Kit%20Hiller.pdf" },
   { "name": "Konstantina", "url": "https://earlypond.github.io/label-nudger-stickers/Konstantina.pdf" },
-
   { "name": "Brett Whiteley", "url": "https://earlypond.github.io/label-nudger-stickers/BRETT%20WHITELEY%20.pdf" },
   { "name": "Beatrix Potter", "url": "https://earlypond.github.io/label-nudger-stickers/Beatrix%20Potter.pdf" },
   { "name": "Bruce Goold", "url": "https://earlypond.github.io/label-nudger-stickers/Bruce%20Goold_NEW.pdf" },
